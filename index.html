@@ -999,6 +999,7 @@ const LSL_DOORS=Array.from({length:25},(_,i)=>i+1);
 
 let config=JSON.parse(localStorage.getItem('tdr_config')||JSON.stringify({
   dbxUrl: 'https://5271847656079907.7.gcp.databricks.com',
+  httpPath: '/sql/1.0/warehouses/75960784b480657e',
   dbxToken: '',
   tokenExpiry: '',
   catalog: 'prod_catalog',
@@ -1190,6 +1191,10 @@ function renderConfig(){
     </div>
 
     <div class="field-group">
+      <label>SQL Warehouse HTTP Path</label>
+      <input id="cfg-httppath" value="${c.httpPath||'/sql/1.0/warehouses/75960784b480657e'}" placeholder="/sql/1.0/warehouses/..."/>
+    </div>
+    <div class="field-group">
       <label>${t('settingsCatalog')}</label>
       <input id="cfg-catalog" value="${c.catalog||'main'}" placeholder="main"/>
     </div>
@@ -1251,6 +1256,7 @@ function liveUpdateExpiry(val){
 function saveConfig(){
   config={
     dbxUrl:document.getElementById('cfg-url').value.trim(),
+    httpPath:document.getElementById('cfg-httppath').value.trim(),
     dbxToken:document.getElementById('cfg-token').value.trim(),
     tokenExpiry:document.getElementById('cfg-token-expiry').value,
     catalog:document.getElementById('cfg-catalog').value.trim()||'main',
@@ -1268,6 +1274,7 @@ async function testDbx(){
   if(el) el.innerHTML=`<span class='status-badge badge-warn'>${t('settingsTesting')}</span>`;
   const url=document.getElementById('cfg-url').value.trim();
   const token=document.getElementById('cfg-token').value.trim();
+  const httpPath=document.getElementById('cfg-httppath')?.value.trim()||config.httpPath||'/sql/1.0/warehouses/75960784b480657e';
   const catalog=document.getElementById('cfg-catalog').value.trim()||'prod_catalog';
   const schema=document.getElementById('cfg-schema').value.trim()||'default';
   const table=document.getElementById('cfg-table').value.trim()||'tdr_submissions';
@@ -1278,7 +1285,8 @@ async function testDbx(){
       headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},
       body:JSON.stringify({
         statement:`SELECT COUNT(*) as total FROM ${catalog}.${schema}.${table}`,
-        wait_timeout:'10s'
+        wait_timeout:'30s',
+        warehouse_id:'75960784b480657e'
       })
     });
     if(r.ok){
