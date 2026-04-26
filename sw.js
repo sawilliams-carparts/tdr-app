@@ -1,6 +1,6 @@
 // CarParts TDR Safety App — Service Worker
 // Bump this version number every time you push an update to GitHub
-const VERSION = '1.1.0';
+const VERSION = '1.1.1';
 const CACHE_NAME = 'tdr-app-' + VERSION;
 
 // Files to cache on install
